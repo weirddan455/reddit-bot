@@ -222,7 +222,7 @@ static char *encode_text(char *dst, char *src)
     return dst;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) {
         puts("curl_global_init failed");
@@ -283,6 +283,55 @@ int main(void)
     }
     ptr += 11;
     long last_created = strtol(ptr, NULL, 10);
+
+    if (argc > 1) {
+        bool success = false;
+        size_t name_len = strlen(argv[1]);
+        ptr = buffer.data;
+        while ((ptr = strstr(ptr, "\"selftext\": ")) != NULL) {
+            ptr += 13;
+            char *selftext = ptr;
+            while (true) {
+                while (*ptr != '"') {
+                    ptr++;
+                }
+                if (*(ptr - 1) == '\\') {
+                    ptr++;
+                } else {
+                    break;
+                }
+            }
+            *ptr = 0;
+            ptr++;
+            ptr = strstr(ptr, "\"name\": ");
+            if (ptr == NULL) {
+                break;
+            }
+            ptr += 9;
+            if (memcmp(ptr, argv[1], name_len) == 0) {
+                printf("Writing comment for thing_id: %s\n", argv[1]);
+                char *comment_ptr = encode_text(comment_middle, selftext);
+                const char *str = "&thing_id=";
+                size_t str_len = strlen(str);
+                memcpy(comment_ptr, str, str_len);
+                comment_ptr += str_len;
+                memcpy(comment_ptr, argv[1], name_len);
+                comment_ptr += name_len;
+                *comment_ptr = 0;
+                curl_easy_reset(curl);
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, stub_callback);
+                curl_easy_setopt(curl, CURLOPT_USERAGENT, BOT_USER_AGENT);
+                curl_easy_setopt(curl, CURLOPT_URL, "https://oauth.reddit.com/api/comment");
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, comment);
+                curl_easy_perform(curl);
+                success = true;
+            }
+        }
+        if (!success) {
+            printf("Failed to find thing_id: %s\n", argv[1]);
+        }
+    }
 
     while (true) {
         sleep(60);
