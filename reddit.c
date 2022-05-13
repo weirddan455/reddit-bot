@@ -375,6 +375,7 @@ int main(void)
             }
 
             if (selftext_len > 3) {
+                sleep(60);
                 printf("Writing comment to %s\n", title);
                 char *comment_ptr = encode_text(comment_middle, selftext);
                 const char *str = "&thing_id=";
@@ -391,7 +392,6 @@ int main(void)
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, comment);
                 curl_easy_perform(curl);
-                sleep(60);
             }
         }
     }
