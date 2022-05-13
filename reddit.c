@@ -246,9 +246,9 @@ int main(void)
         return 1;
     }
     const char *comment_header = "text="
-        "Hello%2C%20I%20am%20a%20bot%20that%20copies%20the%20text%20of%20the%20original%20post%20so%20that%20questions%20and%20their%20answers%20can%20be%20preserved%20to%20benefit%20others%2E%0A%0A"
-        "I%20am%20programmed%20in%20C%20and%20my%20source%20code%20is%20available%20here%3A%20https%3A%2F%2Fgithub%2Ecom%2Fweirddan455%2Freddit%2Dbot%0A%0A"
-        "If%20a%20mod%20would%20like%20this%20bot%20taken%20down%2C%20please%20let%20my%20owner%20%2Fu%2FDeeBoFour20%20know%2E%0A%0A";
+        "Hello%2C%20I%20am%20a%20bot%20that%20copies%20the%20text%20of%20the%20original%20post%20so%20that%20questions%20and%20their%20answers%20can%20be%20preserved%20to%20benefit%20others%2E%20%20%0A"
+        "I%20am%20programmed%20in%20C%20and%20my%20source%20code%20is%20available%20here%3A%20https%3A%2F%2Fgithub%2Ecom%2Fweirddan455%2Freddit%2Dbot%20%20%0A"
+        "If%20a%20mod%20would%20like%20this%20bot%20taken%20down%2C%20please%20let%20my%20owner%20%2Fu%2FDeeBoFour20%20know%2E%20%20%0A";
     size_t header_len = strlen(comment_header);
     memcpy(comment, comment_header, header_len);
     char *comment_middle = &comment[header_len];
