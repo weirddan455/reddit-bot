@@ -326,6 +326,7 @@ int main(int argc, char **argv)
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, comment);
                 curl_easy_perform(curl);
                 success = true;
+                break;
             }
         }
         if (!success) {
