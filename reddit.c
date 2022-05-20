@@ -248,11 +248,13 @@ int main(int argc, char **argv)
     const char *comment_header = "text="
         "Hello%2C%20I%20am%20a%20bot%20that%20copies%20the%20text%20of%20the%20original%20post%20so%20that%20questions%20and%20their%20answers%20can%20be%20preserved%20to%20benefit%20others%2E%20%20%0A"
         "I%20am%20programmed%20in%20C%20and%20my%20source%20code%20is%20available%20here%3A%20https%3A%2F%2Fgithub%2Ecom%2Fweirddan455%2Freddit%2Dbot%20%20%0A"
-        "If%20a%20mod%20would%20like%20this%20bot%20taken%20down%2C%20please%20let%20my%20owner%20%2Fu%2FDeeBoFour20%20know%2E%20%20%0A"
-        "%0A---%0A%0A";
+        "Please%20message%20my%20owner%20%2Fu%2FDeeBoFour20%20with%20any%20questions%2Fconcerns%2E%20%20%0A"
+        "Original%20Post%20by%20%2Fu%2F";
     size_t header_len = strlen(comment_header);
     memcpy(comment, comment_header, header_len);
     char *comment_middle = &comment[header_len];
+    const char *line_break = "%20%20%0A%0A---%0A%0A";
+    size_t line_break_len = strlen(line_break);
     struct Credentials creds;
     if (!read_credentials(&creds)) {
         puts("Failed to read credentials");
@@ -310,7 +312,31 @@ int main(int argc, char **argv)
             ptr += 9;
             if (memcmp(ptr, argv[1], name_len) == 0) {
                 printf("Writing comment for thing_id: %s\n", argv[1]);
-                char *comment_ptr = encode_text(comment_middle, selftext);
+                ptr = strstr(ptr, "\"author\": ");
+                if (ptr == NULL) {
+                    break;
+                }
+                ptr += 11;
+                char *author = ptr;
+                size_t author_len = 0;
+                while (true) {
+                    while (*ptr != '"') {
+                        ptr++;
+                        author_len++;
+                    }
+                    if (*(ptr - 1) == '\\') {
+                        ptr++;
+                        author_len++;
+                    } else {
+                        break;
+                    }
+                }
+                *ptr = 0;
+                memcpy(comment_middle, author, author_len);
+                char *comment_ptr = comment_middle + author_len;
+                memcpy(comment_ptr, line_break, line_break_len);
+                comment_ptr += line_break_len;
+                comment_ptr = encode_text(comment_ptr, selftext);
                 const char *str = "&thing_id=";
                 size_t str_len = strlen(str);
                 memcpy(comment_ptr, str, str_len);
@@ -424,10 +450,35 @@ int main(int argc, char **argv)
                 break;
             }
 
+            ptr = strstr(ptr, "\"author\": ");
+            if (ptr == NULL) {
+                break;
+            }
+            ptr += 11;
+            char *author = ptr;
+            size_t author_len = 0;
+            while (true) {
+                while (*ptr != '"') {
+                    ptr++;
+                    author_len++;
+                }
+                if (*(ptr - 1) == '\\') {
+                    ptr++;
+                    author_len++;
+                } else {
+                    break;
+                }
+            }
+            *ptr = 0;
+
             if (selftext_len > 3) {
                 sleep(60);
                 printf("Writing comment to %s\n", title);
-                char *comment_ptr = encode_text(comment_middle, selftext);
+                memcpy(comment_middle, author, author_len);
+                char *comment_ptr = comment_middle + author_len;
+                memcpy(comment_ptr, line_break, line_break_len);
+                comment_ptr += line_break_len;
+                comment_ptr = encode_text(comment_ptr, selftext);
                 const char *str = "&thing_id=";
                 size_t str_len = strlen(str);
                 memcpy(comment_ptr, str, str_len);
